@@ -3,3 +3,4 @@
 *.mdb
 .vscode/settings.json
 *.session.sql
+.exe
