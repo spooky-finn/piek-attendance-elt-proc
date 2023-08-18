@@ -1,4 +1,5 @@
-delete from attendance.intervals;
+-- delete from attendance.intervals;
+-- delete from attendance.users;
 
 -- ALTER TABLE attendance.intervals 
 -- DROP COLUMN id;
