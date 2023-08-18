@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
+	"path/filepath"
 
 	"github.com/joho/godotenv"
 	entity "github.com/spooky-finn/piek-attendance-prod/entity"
@@ -20,14 +22,20 @@ var (
 
 func main() {
 	flag.Parse()
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	exPath := filepath.Dir(ex)
 
-	err := godotenv.Load(".env")
+	err = godotenv.Load(path.Join(exPath, ".env"))
 	if err != nil {
 		panic("Error loading .env file")
 	}
 
 	mdbpath := os.Getenv("ACCESS_MDB_PATH")
-	exporter := infra.NewMdbExporter(mdbpath)
+
+	exporter := infra.NewMdbExporter(mdbpath, exPath)
 
 	users, err := exporter.ExportUsersFromDB()
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"log"
 	"os/exec"
+	"path"
 	"runtime"
 
 	"github.com/spooky-finn/piek-attendance-prod/entity"
@@ -15,11 +16,11 @@ type MdbExporter struct {
 	mdbToolsBin string
 }
 
-func NewMdbExporter(mdbpath string) *MdbExporter {
+func NewMdbExporter(mdbpath, exDir string) *MdbExporter {
 	mdbToolsBin := "mdb-export"
 
 	if runtime.GOOS == "windows" {
-		mdbToolsBin = "./mdbtools-win/mdb-export"
+		mdbToolsBin = path.Join(exDir, "mdbtools-win", "mdb-export")
 	}
 
 	return &MdbExporter{dblocation: mdbpath, mdbToolsBin: mdbToolsBin}
