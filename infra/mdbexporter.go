@@ -10,10 +10,6 @@ import (
 	"golang.org/x/text/encoding/charmap"
 )
 
-const (
-	SELECT_EVENTS_FOR_MONTHS = 2
-)
-
 type MdbExporter struct {
 	dblocation  string
 	mdbToolsBin string
@@ -29,7 +25,7 @@ func NewMdbExporter(mdbpath string) *MdbExporter {
 	return &MdbExporter{dblocation: mdbpath, mdbToolsBin: mdbToolsBin}
 }
 
-func (e *MdbExporter) ExportEventsFromDB() ([]entity.Event, error) {
+func (e *MdbExporter) ExportEventsFromDB(selectFor int) ([]entity.Event, error) {
 	out, errout, err := e.mdbExport(e.dblocation, "acc_monitor_log")
 
 	if err != nil {
@@ -38,7 +34,7 @@ func (e *MdbExporter) ExportEventsFromDB() ([]entity.Event, error) {
 	}
 
 	events, err := SerializeCSVInput(out, entity.NewEventFromDBRecord)
-	events = entity.SelectEventsForNLastMonths(events, SELECT_EVENTS_FOR_MONTHS)
+	events = entity.SelectEventsForNLastMonths(events, selectFor+1)
 
 	if err != nil {
 		log.Fatalln("err", err)

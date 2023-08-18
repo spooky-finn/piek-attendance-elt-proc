@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -13,12 +14,14 @@ import (
 	database "github.com/spooky-finn/piek-attendance-prod/infra"
 )
 
-const (
-	SELECT_EVENTS_FOR_MONTHS = 2
+var (
+	selectEventsForMonths = flag.Int("selectfor", 2, "select events for last n months")
 )
 
 func main() {
-	err := godotenv.Load()
+	flag.Parse()
+
+	err := godotenv.Load(".env")
 	if err != nil {
 		panic("Error loading .env file")
 	}
@@ -31,7 +34,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	events, err := exporter.ExportEventsFromDB()
+	events, err := exporter.ExportEventsFromDB(*selectEventsForMonths)
 	if err != nil {
 		log.Fatalf("error exporting events: %v", err)
 	}
@@ -62,7 +65,7 @@ func main() {
 	intervals := make([]infra.Interval, 0)
 	for _, user := range users {
 		user.AddEvents(eventsmap[user.Card])
-		user.RunFlow(SELECT_EVENTS_FOR_MONTHS)
+		user.RunFlow(*selectEventsForMonths)
 
 		for _, interval := range user.Intervals {
 			extTime := "nil"
@@ -85,7 +88,7 @@ func main() {
 			})
 		}
 	}
-	log.Printf("formed %v intervals for last %v months \n", len(intervals), SELECT_EVENTS_FOR_MONTHS)
+	log.Printf("formed %v intervals for last %v months \n", len(intervals), *selectEventsForMonths)
 
 	err = db.InsertIntervals(intervals)
 	if err != nil {
